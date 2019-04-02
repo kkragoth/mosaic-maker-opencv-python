@@ -35,13 +35,20 @@ def generate_patches_set(set_name, patch_size, count, target_width, target_heigh
 
     generated_patches = 0
 
+    # for color in AVAILABLE_COLORS_DICT:
+        # c = np.full((PATCH_SIZE, PATCH_SIZE, 3), color)
+        # generate_target_image(str(generated_patches), np.array(c), PATCH_SIZE, PATCH_SIZE)
+        # generated_patches = generated_patches + 1
+
+
     while generated_patches < count:
         generated_image = _generate_random_image(target_width, target_height)
         cv2.imshow('generated image', generated_image)
         cv2.waitKey(1)
 
         # ToDo remove break after implementing loop below
-        break
+        # break
+
 
         for y in range(0, target_height - patch_size, patch_size):
             for x in range(0, target_width - patch_size, patch_size):
@@ -51,28 +58,42 @@ def generate_patches_set(set_name, patch_size, count, target_width, target_heigh
                 # ToDo get patch from generated image
                 # https://docs.scipy.org/doc/numpy-dev/user/quickstart.html
 
+                patched_image = generated_image[y:y+PATCH_SIZE, x:x+PATCH_SIZE]
+
+                cv2.imshow('patch', patched_image)
+                cv2.waitKey(1)
+
                 is_patch_interesting = True
 
+                test_same_color = patched_image == patched_image[0, 0]
+
+                if np.all(test_same_color):
+                    is_patch_interesting = False
+
                 # ToDo check if patch is not filled with one color
+
+                only_one_color = patched_image
 
                 if is_patch_interesting:
                     # ToDo save patch
                     generated_patches += 1
+
+                    generate_target_image(str(generated_patches), patched_image, PATCH_SIZE, PATCH_SIZE)
 
                     print('GENERATED {:04d} OF {} PATCHES'.format(generated_patches, count))
 
     cv2.waitKey(0)
 
 
-def generate_target_image(image_name, width, height):
-    generated_image = _generate_random_image(width, height)
+def generate_target_image(image_name, img, width, height):
+    # generated_image = _generate_random_image(width, height)
 
-    image_path = PROJECT_ROOT / Path('assets/{}'.format(image_name))
+    image_path = PROJECT_ROOT / Path('assets/{}.jpeg'.format(image_name))
 
-    cv2.imwrite(image_path.as_posix(), generated_image)
+    cv2.imwrite(image_path.as_posix(), img)
 
-    cv2.imshow('generated image', generated_image)
-    cv2.waitKey(0)
+    # cv2.imshow('generated image', generated_image)
+    # cv2.waitKey(0)
 
 
 def _generate_random_image(width, height):
@@ -199,5 +220,5 @@ def _get_random_color():
 
 
 if __name__ == "__main__":
-    # generate_patches_set('test', PATCH_SIZE, 300, 900, 500)
-    generate_target_image('test-target.jpg', 900, 500)
+    generate_patches_set('test', PATCH_SIZE, 300, 900, 500)
+    # generate_target_image('test-target.jpg', 900, 500)
